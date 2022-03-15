@@ -12,7 +12,7 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
-const { Pool } = require('pg')
+const { Pool } = require("pg");
 
 /**
  * @type {Cypress.PluginConfig}
@@ -22,31 +22,31 @@ module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
 
-  //criando uma conexão com nosso BD
-  const pool = new Pool({
-    host: 'jelani.db.elephantsql.com',
-    user: 'kovsayna',
-    password: 'bGDvrm6_sRHjmr8dxxLbYdS2rC3SWayk',
-    database: 'kovsayna',
-    //a porta padrão do postgress é 5432;
-    port: 5432
-  })
+  //a constante configJson requer acesso ao arquivo de config onde temos nossos dados de conexão do BD, para atribuimos a mesma acesso ao arquivo através do (config.configFile), dessa forma ela poderá acessar o arquivo de configuração cypress.json
+  const configJson = require(config.configFile);
+
+  //criando uma conexão com nosso BD, passamos como parametro a constante que tem acesso ao arquivo de configurações, após isso passamos o objeto que contém os dados de acesso ao BD
+  const pool = new Pool(configJson.dbConfig);
 
   //criando uma task para remover um usuário do BD
-  on('task', {
-    removeUser(email){
+  on("task", {
+    removeUser(email) {
       //criamos uma promessa para resolver a task
-      return new Promise(function(resolve){
+      return new Promise(function (resolve) {
         //$1 é um parametro que será substituido por um valor, no caso o email;
-        pool.query('DELETE FROM public.users WHERE email = $1', [email], function(error, result){
-          // caso o valor da task seja nulo ou gere algum erro o laço interromperá a task e mostrara o erro
-          if (error){
-            throw error
+        pool.query(
+          "DELETE FROM public.users WHERE email = $1",
+          [email],
+          function (error, result) {
+            // caso o valor da task seja nulo ou gere algum erro o laço interromperá a task e mostrara o erro
+            if (error) {
+              throw error;
+            }
+            //caso dê tudo certo retornaremos através da Promise o result da query
+            resolve({ success: result });
           }
-          //caso dê tudo certo retornaremos através da Promise o result da query
-          resolve({success: result})
-        })
-      })
-    }
-  })
-}
+        );
+      });
+    },
+  });
+};

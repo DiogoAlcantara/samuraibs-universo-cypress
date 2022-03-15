@@ -104,7 +104,7 @@ describe("Cadastro", function () {
     });
   });
 
-  context.only("Quando nenhum campo é preenchido", function () {
+  context("Quando nenhum campo é preenchido", function () {
     const alertMessages = [
       "Nome é obrigatório",
       "E-mail é obrigatório",
